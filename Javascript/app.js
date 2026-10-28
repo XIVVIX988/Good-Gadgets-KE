@@ -110,31 +110,45 @@ function updateCartCount() {
   });
 }
 
-function logo() {
+function logo(variant = 'light') {
+  const image = variant === 'dark'
+    ? 'Assets/Good Gadgets Tech Logo 2.png'
+    : 'Assets/Good Gadgets KE Logo Lockup.png';
+
   return `
     <a class="brand" href="index.html">
-      <img src="Assets/Good Gadgets KE Logo Lockup.png" alt="Good Gadgets KE logo">
+      <img src="${image}" alt="Good Gadgets KE logo">
     </a>
   `;
 }
 
 function header(activePage = '') {
+  const navigation = [
+    ['Home', 'index.html'],
+    ['Phones', 'shop.html?category=Phones'],
+    ['Laptops', 'shop.html?category=Laptops'],
+    ['Audio', 'shop.html?category=Audio'],
+    ['Accessories', 'shop.html'],
+    ['Smart Devices', 'shop.html?category=Smart%20Devices'],
+    ['Deals', 'shop.html'],
+  ];
+
   return `
     <div class="announcement">
       <b>◆</b> SMART TECH. SMART LIVING. &nbsp;
       <span style="color: #aaa">|</span> &nbsp; Your everyday tech destination
     </div>
-    <header class="site-header">
+    <header class="site-header site-header-dark">
       <div class="header-main">
         <button class="menu-toggle" aria-label="Toggle menu">${icons.menu}</button>
-        ${logo()}
+        ${logo('dark')}
         <form class="search-wrap" id="search-form">
           <input id="global-search" placeholder="Search phones, laptops, accessories..." aria-label="Search products">
           <button aria-label="Search">${icons.search}</button>
         </form>
         <div class="header-actions">
-          <a class="head-action" href="contact.html">
-            ${icons.user}<span class="account-label">Support</span>
+          <a class="head-action" href="profile.html" aria-label="User profile">
+            ${icons.user}<span class="account-label">Profile</span>
           </a>
           <a class="head-action cart-action" href="cart.html" aria-label="Shopping cart">
             ${icons.bag}<span class="account-label">Cart</span>
@@ -144,12 +158,9 @@ function header(activePage = '') {
       </div>
       <nav class="nav-row">
         <div class="nav-inner">
-          <a class="${activePage === 'home' ? 'active' : ''}" href="index.html">Home</a>
-          <a class="${activePage === 'shop' ? 'active' : ''}" href="shop.html">Shop all</a>
-          <a class="${activePage === 'new' ? 'active' : ''}" href="new-arrivals.html">New arrivals</a>
-          <a class="${activePage === 'collections' ? 'active' : ''}" href="collections.html">Collections</a>
-          <span class="nav-spacer"></span>
-          <span class="nav-note">Find your next favourite gadget</span>
+          ${navigation.map(([label, href]) => `
+            <a class="${(label === 'Home' && activePage === 'home') || label.toLowerCase() === activePage ? 'active' : ''}" href="${href}">${label}</a>
+          `).join('')}
         </div>
       </nav>
     </header>
@@ -161,12 +172,12 @@ function footer() {
     <footer class="site-footer">
       <div class="footer-main">
         <div class="footer-brand">
-          ${logo()}
+          ${logo('dark')}
           <p>Your everyday destination for phones, computers, accessories and the technology that keeps you connected.</p>
         </div>
         <div class="footer-col">
           <h4>Explore</h4>
-          <a href="shop.html">Shop all</a>
+          <a href="shop.html">Browse products</a>
           <a href="new-arrivals.html">New arrivals</a>
           <a href="collections.html">Collections</a>
           <a href="about.html">About us</a>
@@ -265,8 +276,8 @@ function setup() {
   updateCartCount();
 
   if (document.querySelector('#home-products')) {
-    showProductSkeletons('#home-products', 4);
-    window.setTimeout(() => renderProducts(products.slice(0, 4), '#home-products'), 420);
+    showProductSkeletons('#home-products', 5);
+    window.setTimeout(() => renderProducts(products.slice(0, 5), '#home-products'), 420);
   }
 
   if (document.querySelector('#new-products')) {
