@@ -113,11 +113,7 @@ function updateCartCount() {
 function logo() {
   return `
     <a class="brand" href="index.html">
-      <img src="Assets/good-gadgets-logo-transparent.png" alt="Good Gadgets KE logo">
-      <span class="brand-text">
-        <strong>GOOD GADGETS</strong>
-        <small>SMART TECH. SMART LIVING.</small>
-      </span>
+      <img src="Assets/Good Gadgets KE Logo Lockup.png" alt="Good Gadgets KE logo">
     </a>
   `;
 }
@@ -223,9 +219,28 @@ function renderProducts(productList, targetSelector) {
   const target = document.querySelector(targetSelector);
   if (!target) return;
 
+  target.setAttribute('aria-busy', 'false');
   target.innerHTML = productList.length
     ? productList.map(productCard).join('')
     : '<div class="empty-state">No demo products match these filters. Try clearing a filter or searching another term.</div>';
+}
+
+function showProductSkeletons(targetSelector, count = 4) {
+  const target = document.querySelector(targetSelector);
+  if (!target) return;
+
+  target.setAttribute('aria-busy', 'true');
+  target.innerHTML = Array.from({ length: count }, () => `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="skeleton-image"></div>
+      <div class="skeleton-copy">
+        <span class="skeleton-line short"></span>
+        <span class="skeleton-line medium"></span>
+        <span class="skeleton-line price-line"></span>
+        <span class="skeleton-line"></span>
+      </div>
+    </div>
+  `).join('');
 }
 
 function toast(message) {
@@ -248,6 +263,19 @@ function setup() {
   if (footerElement) footerElement.innerHTML = footer();
 
   updateCartCount();
+
+  if (document.querySelector('#home-products')) {
+    showProductSkeletons('#home-products', 4);
+    window.setTimeout(() => renderProducts(products.slice(0, 4), '#home-products'), 420);
+  }
+
+  if (document.querySelector('#new-products')) {
+    showProductSkeletons('#new-products', 2);
+    window.setTimeout(() => {
+      const newProducts = products.filter((product) => product.tag === 'NEW' || product.tag === 'FEATURED');
+      renderProducts(newProducts, '#new-products');
+    }, 420);
+  }
 
   document.querySelector('.menu-toggle')?.addEventListener('click', () => {
     document.querySelector('.nav-row').classList.toggle('open');
@@ -289,16 +317,6 @@ function setup() {
     });
   });
 
-  if (document.querySelector('#home-products')) {
-    renderProducts(products.slice(0, 4), '#home-products');
-  }
-
-  if (document.querySelector('#new-products')) {
-    renderProducts(
-      products.filter((product) => product.tag === 'NEW' || product.tag === 'FEATURED'),
-      '#new-products',
-    );
-  }
 }
 
 function setupShop() {
@@ -309,6 +327,8 @@ function setupShop() {
 
   if (globalSearch) globalSearch.value = query;
   if (shopSearch) shopSearch.value = query;
+
+  showProductSkeletons('#shop-products', 6);
 
   let selectedCategory = params.get('category') || '';
   const selectedFilter = [...document.querySelectorAll('[name="category-filter"]')]
@@ -341,7 +361,7 @@ function setupShop() {
 
   document.querySelector('#sort-products')?.addEventListener('change', applyFilters);
   shopSearch?.addEventListener('input', applyFilters);
-  applyFilters();
+  window.setTimeout(applyFilters, 420);
 }
 
 function setupCart() {
