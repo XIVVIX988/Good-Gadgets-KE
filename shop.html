@@ -15,40 +15,59 @@
     </div>
     <main>
       <div class="container shop-layout">
-        <aside class="filters">
-          <div class="filter-head">Filter products
+        <aside class="filters" aria-label="Product filters">
+          <div class="filter-section">
+            <h2>Categories</h2>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value=""> All Products</label>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value="Phones"> Phones</label>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value="Laptops"> Laptops</label>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value="Audio"> Audio</label>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value="Accessories"> Accessories</label>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value="Smart Devices"> Smart Devices</label>
+            <label class="filter-option"><input type="checkbox" name="category-filter" value="Deals"> Deals</label>
           </div>
-          <div class="filter-group">
-            <h4>Category
-            </h4>
-            <label class="filter-option"><input type="checkbox" name="category-filter" value="Phones"> Phones
-            </label>
-            <label class="filter-option"><input type="checkbox" name="category-filter" value="Laptops"> Laptops
-            </label>
-            <label class="filter-option"><input type="checkbox" name="category-filter" value="Audio"> Audio
-            </label>
-            <label class="filter-option"><input type="checkbox" name="category-filter" value="Smart Devices"> Smart devices
-            </label>
+          <div class="filter-section">
+            <h2>Filter by Brand</h2>
+            <label class="filter-option"><input type="checkbox"> Apple</label>
+            <label class="filter-option"><input type="checkbox"> Samsung</label>
+            <label class="filter-option"><input type="checkbox"> Infinix</label>
+            <label class="filter-option"><input type="checkbox"> Xiaomi</label>
+            <label class="filter-option"><input type="checkbox"> HP</label>
+            <label class="filter-option"><input type="checkbox"> Dell</label>
+          </div>
+          <div class="filter-section">
+            <h2>Price Range</h2>
+            <label class="filter-option"><input type="checkbox" name="price-filter" value="0-25000"> KSh 0 - 25,000</label>
+            <label class="filter-option"><input type="checkbox" name="price-filter" value="25000-50000"> KSh 25,000 - 50,000</label>
+            <label class="filter-option"><input type="checkbox" name="price-filter" value="50000-100000"> KSh 50,000 - 100,000</label>
+            <label class="filter-option"><input type="checkbox" name="price-filter" value="100000-"> KSh 100,000+</label>
+          </div>
+          <div class="filter-section">
+            <h2>Availability</h2>
+            <label class="filter-option"><input type="checkbox"> In Stock</label>
+            <label class="filter-option"><input type="checkbox"> Out of Stock</label>
           </div>
         </aside>
-        <section>
+        <section class="shop-results" aria-label="Product listings">
+          <div class="shop-heading">
+            <div>
+              <h1 id="category-title">All Products</h1>
+              <p id="category-subtitle">Browse the latest gadgets from Good Gadgets KE.</p>
+            </div>
+            <label class="sort-control">Sort by
+              <select id="sort-products" aria-label="Sort products">
+                <option value="featured">Newest</option>
+                <option value="low">Price: Low to High</option>
+                <option value="high">Price: High to Low</option>
+              </select>
+            </label>
+          </div>
           <div class="shop-toolbar">
-            <p id="result-count">Loading products
-            </p>
-            <select id="sort-products" aria-label="Sort products">
-              <option value="featured">Featured
-              </option>
-              <option value="low">Price: low to high
-              </option>
-              <option value="high">Price: high to low
-              </option>
-            </select>
+            <p id="result-count">Loading products</p>
+            <input id="shop-search" placeholder="Search products" aria-label="Search products">
           </div>
-          <input id="shop-search" placeholder="Search demo products" style="width:100%;height:38px;border:1px solid #e5e5e5;border-radius:5px;padding:0 12px;margin:0 0 16px;font-size:14px" aria-label="Search demo products">
-          <div class="product-grid shop-products" id="shop-products">
-          </div>
-          <p style="font-size:13px;color:#888;margin-top:16px">Sample listings are for preview only. Confirm product data, pricing, stock and terms before publishing.
-          </p>
+          <div class="product-grid shop-products" id="shop-products"></div>
+          <p class="shop-disclaimer">Sample listings are for preview only. Confirm product data, pricing, stock and terms before publishing.</p>
         </section>
       </div>
     </main>

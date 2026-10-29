@@ -206,11 +206,27 @@ function footer() {
 }
 
 function productCard(product) {
+  const whatsappMessage = encodeURIComponent(
+    `Hi Good Gadgets KE, I would like to order ${product.name} for KSh ${product.price.toLocaleString('en-KE')}.`,
+  );
+  const shopListingImage = document.body.dataset.page === 'shop'
+    ? ({
+        'phone-pro': 'Assets/Product 3.png',
+        buds: 'Assets/Product 4.png',
+        'laptop-air': 'Assets/Product 2.png',
+        'watch-active': 'Assets/Product 15.png',
+        'phone-lite': 'Assets/Product 3.png',
+        'laptop-pro': 'Assets/Product 2.png',
+      }[product.id] || '')
+    : '';
+
   return `
     <article class="product-card" data-id="${product.id}" data-category="${product.category}" data-price="${product.price}">
       <div class="product-image" style="--tone: ${product.tone}; --halo: ${product.halo}">
         ${product.tag ? `<span class="product-badge">${product.tag}</span>` : ''}
-        <div class="product-object ${product.type}"></div>
+        ${shopListingImage
+          ? `<img class="listing-product-photo" src="${shopListingImage}" alt="${product.name}">`
+          : `<div class="product-object ${product.type}"></div>`}
       </div>
       <div class="product-info">
         <span class="product-category">${product.category} · Demo listing</span>
@@ -221,6 +237,10 @@ function productCard(product) {
           <button class="add-btn" data-add="${product.id}">Add to bag</button>
           <button class="quick-view" aria-label="View ${product.name}" title="Demo listing">${icons.eye}</button>
         </div>
+        <a class="whatsapp-order" href="https://wa.me/254757852033?text=${whatsappMessage}" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 11.7a8.4 8.4 0 0 1-12.5 7.4L3 20.3l1.2-4.6a8.4 8.4 0 1 1 16.2-4Z"></path><path d="M8.2 8.1c.2-.5.5-.5.8-.5h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.6.7c-.2.2-.2.4 0 .6.6 1 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.8c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .4-.2 1-.6 1.3-.4.4-1 .6-1.7.5-1-.2-2.2-.7-3.5-1.8-1.5-1.3-2.4-2.8-2.6-3.8-.2-.8 0-1.6.5-2.2Z"></path></svg>
+          Order on WhatsApp
+        </a>
       </div>
     </article>
   `;
@@ -264,6 +284,63 @@ function toast(message) {
   window.ggToast = setTimeout(() => element.classList.remove('show'), 2600);
 }
 
+function setupHeroSlideshow() {
+  const slider = document.querySelector('#hero-slider');
+  const dotsContainer = document.querySelector('#hero-slider-dots');
+  if (!slider || !dotsContainer) return;
+  const pauseArea = slider.parentElement;
+
+  const slides = [...slider.querySelectorAll('.hero-slide')];
+  if (slides.length < 2) return;
+
+  let activeIndex = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+  let timer;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  dotsContainer.innerHTML = slides.map((_, index) => `
+    <button class="hero-slider-dot" type="button" data-slide-to="${index}" aria-label="Show product ${index + 1}" aria-pressed="${index === activeIndex}"></button>
+  `).join('');
+  const dots = [...dotsContainer.querySelectorAll('.hero-slider-dot')];
+
+  function stopAutoplay() {
+    window.clearInterval(timer);
+    timer = undefined;
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    if (!reducedMotion && !pauseArea.matches(':hover') && !pauseArea.contains(document.activeElement)) {
+      timer = window.setInterval(() => showSlide(activeIndex + 1, false), 5000);
+    }
+  }
+
+  function showSlide(index, restartTimer = true) {
+    activeIndex = (index + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => {
+      const isActive = slideIndex === activeIndex;
+      slide.classList.toggle('is-active', isActive);
+      slide.setAttribute('aria-hidden', String(!isActive));
+      dots[slideIndex].setAttribute('aria-pressed', String(isActive));
+    });
+    if (restartTimer) startAutoplay();
+  }
+
+  slider.querySelectorAll('[data-slide-step]').forEach((button) => {
+    button.addEventListener('click', () => showSlide(activeIndex + Number(button.dataset.slideStep)));
+  });
+  dotsContainer.addEventListener('click', (event) => {
+    const dot = event.target.closest('[data-slide-to]');
+    if (dot) showSlide(Number(dot.dataset.slideTo));
+  });
+  pauseArea.addEventListener('mouseenter', stopAutoplay);
+  pauseArea.addEventListener('mouseleave', startAutoplay);
+  pauseArea.addEventListener('focusin', stopAutoplay);
+  pauseArea.addEventListener('focusout', (event) => {
+    if (!pauseArea.contains(event.relatedTarget)) startAutoplay();
+  });
+  startAutoplay();
+}
+
 function setup() {
   const headerElement = document.querySelector('#site-header');
   if (headerElement) {
@@ -274,6 +351,7 @@ function setup() {
   if (footerElement) footerElement.innerHTML = footer();
 
   updateCartCount();
+  setupHeroSlideshow();
 
   if (document.querySelector('#home-products')) {
     showProductSkeletons('#home-products', 5);
@@ -346,13 +424,29 @@ function setupShop() {
     .find((element) => element.value === selectedCategory);
   if (selectedFilter) selectedFilter.checked = true;
 
+  const categoryTitle = document.querySelector('#category-title');
+  const categorySubtitle = document.querySelector('#category-subtitle');
+  function updateCategoryHeading() {
+    const title = selectedCategory || 'All Products';
+    if (categoryTitle) categoryTitle.textContent = title;
+    if (categorySubtitle) {
+      categorySubtitle.textContent = selectedCategory
+        ? `Explore our ${selectedCategory.toLowerCase()} collection.`
+        : 'Browse the latest gadgets from Good Gadgets KE.';
+    }
+  }
+  updateCategoryHeading();
+
   function applyFilters() {
     const searchTerm = (shopSearch?.value || '').toLowerCase();
     const filteredProducts = products.filter((product) => {
       const matchesSearch = !searchTerm
         || `${product.name} ${product.category}`.toLowerCase().includes(searchTerm);
       const matchesCategory = !selectedCategory || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+      const priceRanges = [...document.querySelectorAll('[name="price-filter"]:checked')]
+        .map((element) => element.value.split('-').map((bound) => bound ? Number(bound) : Infinity));
+      const matchesPrice = !priceRanges.length || priceRanges.some(([min, max]) => product.price >= min && product.price < max);
+      return matchesSearch && matchesCategory && matchesPrice;
     });
 
     const sortOrder = document.querySelector('#sort-products')?.value;
@@ -366,10 +460,17 @@ function setupShop() {
   document.querySelectorAll('[name="category-filter"]').forEach((element) => {
     element.addEventListener('change', () => {
       selectedCategory = element.checked ? element.value : '';
+      document.querySelectorAll('[name="category-filter"]').forEach((other) => {
+        other.checked = other === element && element.checked;
+      });
+      updateCategoryHeading();
       applyFilters();
     });
   });
 
+  document.querySelectorAll('[name="price-filter"]').forEach((element) => {
+    element.addEventListener('change', applyFilters);
+  });
   document.querySelector('#sort-products')?.addEventListener('change', applyFilters);
   shopSearch?.addEventListener('input', applyFilters);
   window.setTimeout(applyFilters, 420);

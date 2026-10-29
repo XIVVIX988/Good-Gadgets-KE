@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Explore phones, laptops, audio, accessories, and smart devices at Good Gadgets KE.">
     <title>Good Gadgets KE | Latest Gadgets. Better Living.</title>
-    <link rel="stylesheet" href="CSS/styles.css?v=hero-refresh-20261028">
-    <script defer src="Javascript/app.js"></script>
+    <link rel="stylesheet" href="CSS/styles.css?v=hero-gradient-20261029">
+    <script defer src="Javascript/app.js?v=hero-slideshow-20261029"></script>
   </head>
   <body data-page="home">
     <div id="site-header"></div>
@@ -23,13 +23,40 @@
             </svg>
           </a>
         </div>
-        <div class="hero-art hero-showcase" aria-label="A studio-style display of headphones, a smartwatch, smartphone, and wireless earbuds">
+        <div class="hero-art hero-showcase" aria-label="Featured product slideshow">
           <div class="hero-light-loop"></div>
           <div class="hero-stage-floor" aria-hidden="true"></div>
-          <img class="hero-showcase-item showcase-watch" src="Assets/Product 15.png" alt="Smartwatch">
-          <img class="hero-showcase-item showcase-phone" src="Assets/Product 3.png" alt="Smartphone">
-          <img class="hero-showcase-item showcase-headphones" src="Assets/Product 1.png" alt="Blue wireless headphones">
-          <img class="hero-showcase-item showcase-earbuds" src="Assets/Product 4.png" alt="Wireless earbuds and charging case">
+          <div class="hero-slider" id="hero-slider" aria-label="Featured products" aria-live="polite">
+            <article class="hero-slide slide-phone is-active" aria-hidden="false">
+              <img src="Assets/Product 3.png" alt="Smartphone">
+              <div class="hero-slide-caption"><span>Featured product</span><strong>Smartphones</strong></div>
+            </article>
+            <article class="hero-slide slide-headphones" aria-hidden="true">
+              <img src="Assets/Product 1.png" alt="Blue wireless headphones">
+              <div class="hero-slide-caption"><span>Featured product</span><strong>Wireless headphones</strong></div>
+            </article>
+            <article class="hero-slide slide-laptop" aria-hidden="true">
+              <img src="Assets/Product 2.png" alt="Laptop">
+              <div class="hero-slide-caption"><span>Featured product</span><strong>Laptops &amp; computers</strong></div>
+            </article>
+            <article class="hero-slide slide-earbuds" aria-hidden="true">
+              <img src="Assets/Product 4.png" alt="Wireless earbuds and charging case">
+              <div class="hero-slide-caption"><span>Featured product</span><strong>Wireless earbuds</strong></div>
+            </article>
+            <article class="hero-slide slide-watch" aria-hidden="true">
+              <img src="Assets/Product 15.png" alt="Smartwatch">
+              <div class="hero-slide-caption"><span>Featured product</span><strong>Smartwatches</strong></div>
+            </article>
+          </div>
+          <div class="hero-slider-controls" aria-label="Slideshow controls">
+            <div class="hero-slider-dots" id="hero-slider-dots"></div>
+            <button class="hero-slider-arrow" type="button" data-slide-step="-1" aria-label="Previous product">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+            </button>
+            <button class="hero-slider-arrow" type="button" data-slide-step="1" aria-label="Next product">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+            </button>
+          </div>
         </div>
       </section>
 
