@@ -1,1 +1,0 @@
-window.aui.amd_define("dp-reviews-btf-age-recommendation-placement",["@amzn/kata-web-framework-runtime-functions"],(function(e){}));

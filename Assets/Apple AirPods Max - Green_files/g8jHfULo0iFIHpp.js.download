@@ -1,1 +1,0 @@
-window.aui.amd_define("dp-reviews-btf-review-highlights-placement",["@amzn/kata-web-framework-runtime-functions"],(function(e){}));

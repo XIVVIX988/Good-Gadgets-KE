@@ -1,1 +1,0 @@
-window.aui.amd_define("@amzn/flow.component.dp-reviews-btf-container-view",["@amzn/kata-web-framework-runtime-functions"],(function(n){}));

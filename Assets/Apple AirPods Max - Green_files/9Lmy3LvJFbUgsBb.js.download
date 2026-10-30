@@ -1,1 +1,0 @@
-window.aui.amd_define("dp-reviews-btf-grid-container",["@amzn/kata-web-framework-runtime-functions"],(function(n){}));

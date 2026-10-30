@@ -79,7 +79,66 @@ const products = [
     halo: '#e4d8d4',
     tag: '',
   },
+  {
+    id: 'samsung-galaxy-s26-ultra',
+    name: 'Samsung Galaxy S26 Ultra',
+    category: 'Phones',
+    price: 179999,
+    type: 'phone',
+    tone: '#f3eded',
+    halo: '#ead5d7',
+    tag: 'NEW',
+  },
+  {
+    id: 'jbl-party-speaker',
+    name: 'JBL Party Speaker',
+    category: 'Audio',
+    price: 32999,
+    type: 'speaker',
+    tone: '#e9e9e9',
+    halo: '#d8d8d8',
+    tag: 'NEW',
+  },
+  {
+    id: 'usb-c-charger-cable',
+    name: 'USB-C Charger and Cable',
+    category: 'Accessories',
+    price: 2499,
+    type: 'accessory',
+    tone: '#f0f0ee',
+    halo: '#e0e0de',
+    tag: '',
+  },
+  {
+    id: 'airpods-max',
+    name: 'Apple AirPods Max',
+    category: 'Audio',
+    price: 69999,
+    type: 'headphones',
+    tone: '#eeeeef',
+    halo: '#dedee0',
+    tag: '',
+    variants: [
+      { name: 'Charcoal Black', image: 'Assets/Apple AirPods Max - Charcoal Black.png', swatch: '#292b30' },
+      { name: 'Mint Green', image: 'Assets/Apple AirPods Max - Mint Green.png', swatch: '#cbd7ca' },
+      { name: 'Sky Blue', image: 'Assets/Apple AirPods Max - Sky Blue.png', swatch: '#84a9d3' },
+    ],
+  },
 ];
+
+const productImages = {
+  'phone-pro': 'Assets/Product 3.png',
+  buds: 'Assets/Product 4.png',
+  'speaker-mini': 'Assets/JBL Party Speaker with Cyan LED Glow.png',
+  'laptop-air': 'Assets/Product 2.png',
+  'watch-active': 'Assets/Product 15.png',
+  'phone-lite': 'Assets/Product 3.png',
+  'laptop-pro': 'Assets/Product 2.png',
+  'samsung-galaxy-s26-ultra': 'Assets/Samsung Galaxy S26 Ultra Product Render.png',
+  'jbl-party-speaker': 'Assets/JBL Party Speaker with Cyan LED Glow.png',
+  'usb-c-charger-cable': 'Assets/White USB-C Charger and Coiled Cable.png',
+  'airpods-max': 'Assets/Apple AirPods Max - Charcoal Black.png',
+};
 
 const icons = {
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>',
@@ -92,10 +151,23 @@ const icons = {
 
 function cart() {
   try {
-    return JSON.parse(localStorage.getItem('gg-cart') || '[]');
+    const legacyAirPodsVariants = {
+      'airpods-max-charcoal': 'Charcoal Black',
+      'airpods-max-mint': 'Mint Green',
+      'airpods-max-sky-blue': 'Sky Blue',
+    };
+    return JSON.parse(localStorage.getItem('gg-cart') || '[]').map((item) => (
+      legacyAirPodsVariants[item.id]
+        ? { ...item, id: 'airpods-max', variantColor: legacyAirPodsVariants[item.id] }
+        : item
+    ));
   } catch {
     return [];
   }
+}
+
+function cartItemKey(item) {
+  return `${item.id}::${item.variantColor || ''}`;
 }
 
 function saveCart(items) {
@@ -206,44 +278,142 @@ function footer() {
 }
 
 function productCard(product) {
+  const detailUrl = `product.html?id=${encodeURIComponent(product.id)}`;
+  const defaultVariant = product.variants?.[0];
   const whatsappMessage = encodeURIComponent(
-    `Hi Good Gadgets KE, I would like to order ${product.name} for KSh ${product.price.toLocaleString('en-KE')}.`,
+    product.variants
+      ? `Hi Good Gadgets KE, I would like to ask about ${product.name}. Available colors: ${product.variants.map((variant) => variant.name).join(', ')}.`
+      : `Hi Good Gadgets KE, I would like to order ${product.name} for KSh ${product.price.toLocaleString('en-KE')}.`,
   );
   const shopListingImage = document.body.dataset.page === 'shop'
-    ? ({
-        'phone-pro': 'Assets/Product 3.png',
-        buds: 'Assets/Product 4.png',
-        'laptop-air': 'Assets/Product 2.png',
-        'watch-active': 'Assets/Product 15.png',
-        'phone-lite': 'Assets/Product 3.png',
-        'laptop-pro': 'Assets/Product 2.png',
-      }[product.id] || '')
+    ? (productImages[product.id] || '')
     : '';
 
   return `
     <article class="product-card" data-id="${product.id}" data-category="${product.category}" data-price="${product.price}">
-      <div class="product-image" style="--tone: ${product.tone}; --halo: ${product.halo}">
+      <a class="product-image product-image-link" href="${detailUrl}" aria-label="View details for ${product.name}" style="--tone: ${product.tone}; --halo: ${product.halo}">
         ${product.tag ? `<span class="product-badge">${product.tag}</span>` : ''}
         ${shopListingImage
           ? `<img class="listing-product-photo" src="${shopListingImage}" alt="${product.name}">`
           : `<div class="product-object ${product.type}"></div>`}
-      </div>
+      </a>
       <div class="product-info">
         <span class="product-category">${product.category} · Demo listing</span>
-        <h3>${product.name}</h3>
+        <h3><a class="product-detail-link" href="${detailUrl}">${product.name}</a></h3>
+        ${product.variants ? `<p class="product-variant-summary">${product.variants.length} colors · Choose a color</p>` : ''}
         <div class="price">KSh ${product.price.toLocaleString('en-KE')}</div>
         <div class="stock">Sample product · details to be confirmed</div>
         <div class="product-actions">
-          <button class="add-btn" data-add="${product.id}">Add to bag</button>
-          <button class="quick-view" aria-label="View ${product.name}" title="Demo listing">${icons.eye}</button>
+          <button class="add-btn" data-add="${product.id}" ${defaultVariant ? `data-variant-color="${defaultVariant.name}"` : ''}>Add to bag</button>
+          <a class="quick-view" href="${detailUrl}" aria-label="View details for ${product.name}" title="View product details">${icons.eye}</a>
         </div>
-        <a class="whatsapp-order" href="https://wa.me/254757852033?text=${whatsappMessage}" target="_blank" rel="noopener noreferrer">
+        <a class="whatsapp-order" href="https://wa.me/254757852033?text=${whatsappMessage}" target="_blank" rel="noopener noreferrer" aria-label="Order ${product.name} on WhatsApp">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 11.7a8.4 8.4 0 0 1-12.5 7.4L3 20.3l1.2-4.6a8.4 8.4 0 1 1 16.2-4Z"></path><path d="M8.2 8.1c.2-.5.5-.5.8-.5h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.6.7c-.2.2-.2.4 0 .6.6 1 1.4 1.7 2.4 2.2.2.1.4.1.5-.1l.7-.8c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .4-.2 1-.6 1.3-.4.4-1 .6-1.7.5-1-.2-2.2-.7-3.5-1.8-1.5-1.3-2.4-2.8-2.6-3.8-.2-.8 0-1.6.5-2.2Z"></path></svg>
-          Order on WhatsApp
+          WhatsApp
         </a>
       </div>
     </article>
   `;
+}
+
+function productDescription(product) {
+  const descriptions = {
+    Phones: 'Explore this phone from our mobile range. Contact us to confirm the exact storage, color, condition, and included accessories before ordering.',
+    Laptops: 'A computer listing from our laptops range. Contact us to confirm the exact processor, memory, storage, display, and warranty before ordering.',
+    Audio: 'An audio product from our headphones and speaker range. Contact us to confirm the model, color, included accessories, and warranty before ordering.',
+    Accessories: 'An everyday accessory from our gadgets range. Check device compatibility and what is included with us before ordering.',
+    'Smart Devices': 'A connected device from our smart technology range. Contact us to confirm compatibility, features, and included accessories before ordering.',
+  };
+  return descriptions[product.category] || `Explore ${product.name} from Good Gadgets KE. Contact us to confirm product details before ordering.`;
+}
+
+function setupProductDetail() {
+  const target = document.querySelector('#product-detail-content');
+  if (!target) return;
+
+  const productId = new URLSearchParams(window.location.search).get('id');
+  const product = products.find((item) => item.id === productId);
+  if (!product) {
+    document.title = 'Product not found | Good Gadgets KE';
+    target.innerHTML = `
+      <div class="product-detail-not-found">
+        <h1>Product not found</h1>
+        <p>That item may have moved. Browse the shop to find another product.</p>
+        <a class="btn btn-primary" href="shop.html">Browse the shop</a>
+      </div>
+    `;
+    target.setAttribute('aria-busy', 'false');
+    return;
+  }
+
+  document.title = `${product.name} | Good Gadgets KE`;
+  const variants = product.variants || [];
+  const defaultVariant = variants[0];
+  const image = defaultVariant?.image || productImages[product.id];
+  const whatsappMessage = encodeURIComponent(
+    `Hi Good Gadgets KE, I would like to ask about ${product.name}${defaultVariant ? ` in ${defaultVariant.name}` : ''}.`,
+  );
+  target.innerHTML = `
+    <nav class="product-breadcrumbs" aria-label="Breadcrumb">
+      <a href="index.html">Home</a><span>›</span><a href="shop.html?category=${encodeURIComponent(product.category)}">${product.category}</a><span>›</span><span>${product.name}</span>
+    </nav>
+    <div class="product-detail-layout">
+      <div class="product-detail-image" style="--tone: ${product.tone}; --halo: ${product.halo}">
+        ${image
+          ? `<img id="product-detail-photo" src="${image}" alt="${product.name}${defaultVariant ? ` — ${defaultVariant.name}` : ''}">`
+          : `<div class="product-object ${product.type}" aria-hidden="true"></div>`}
+      </div>
+      <section class="product-detail-info" aria-labelledby="product-detail-title">
+        <span class="product-category">${product.category} · Demo listing</span>
+        <h1 id="product-detail-title">${product.name}</h1>
+        <p class="product-detail-price">KSh ${product.price.toLocaleString('en-KE')}</p>
+        ${variants.length ? `
+          <div class="product-color-picker">
+            <p>Color: <strong id="selected-product-color">${defaultVariant.name}</strong></p>
+            <div class="product-color-options" role="group" aria-label="Choose a color">
+              ${variants.map((variant, index) => `
+                <button class="product-color-option" type="button" data-product-variant="${index}" data-variant-color="${variant.name}" aria-pressed="${index === 0}" aria-label="Choose ${variant.name}">
+                  <span class="product-color-swatch" style="--swatch-color: ${variant.swatch}" aria-hidden="true"></span>
+                  <span>${variant.name}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        <h2>Description</h2>
+        <p class="product-detail-description">${productDescription(product)}</p>
+        <dl class="product-detail-facts">
+          <div><dt>Category</dt><dd>${product.category}</dd></div>
+          <div><dt>Availability</dt><dd>Confirm with our team</dd></div>
+        </dl>
+        <button class="btn btn-primary product-detail-add" type="button" data-add="${product.id}" ${defaultVariant ? `data-variant-color="${defaultVariant.name}"` : ''}>Add to bag</button>
+        <a class="whatsapp-order product-detail-whatsapp" href="https://wa.me/254757852033?text=${whatsappMessage}" target="_blank" rel="noopener noreferrer" aria-label="Ask about ${product.name} on WhatsApp">WhatsApp</a>
+        <p class="product-detail-note">Sample listing: confirm pricing, stock, specifications, and warranty before ordering.</p>
+      </section>
+    </div>
+  `;
+  if (variants.length) {
+    const photo = target.querySelector('#product-detail-photo');
+    const selectedColor = target.querySelector('#selected-product-color');
+    const addButton = target.querySelector('.product-detail-add');
+    const whatsappLink = target.querySelector('.product-detail-whatsapp');
+    target.querySelectorAll('[data-product-variant]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const variant = variants[Number(button.dataset.productVariant)];
+        if (!variant) return;
+
+        photo.src = variant.image;
+        photo.alt = `${product.name} — ${variant.name}`;
+        selectedColor.textContent = variant.name;
+        addButton.dataset.variantColor = variant.name;
+        target.querySelectorAll('[data-product-variant]').forEach((option) => {
+          option.setAttribute('aria-pressed', String(option === button));
+        });
+        whatsappLink.href = `https://wa.me/254757852033?text=${encodeURIComponent(`Hi Good Gadgets KE, I would like to ask about ${product.name} in ${variant.name}.`)}`;
+      });
+    });
+  }
+  target.setAttribute('aria-busy', 'false');
 }
 
 function renderProducts(productList, targetSelector) {
@@ -295,7 +465,6 @@ function setupHeroSlideshow() {
 
   let activeIndex = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
   let timer;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   dotsContainer.innerHTML = slides.map((_, index) => `
     <button class="hero-slider-dot" type="button" data-slide-to="${index}" aria-label="Show product ${index + 1}" aria-pressed="${index === activeIndex}"></button>
@@ -309,9 +478,7 @@ function setupHeroSlideshow() {
 
   function startAutoplay() {
     stopAutoplay();
-    if (!reducedMotion && !pauseArea.matches(':hover') && !pauseArea.contains(document.activeElement)) {
-      timer = window.setInterval(() => showSlide(activeIndex + 1, false), 5000);
-    }
+    timer = window.setInterval(() => showSlide(activeIndex + 1, false), 5000);
   }
 
   function showSlide(index, restartTimer = true) {
@@ -325,18 +492,12 @@ function setupHeroSlideshow() {
     if (restartTimer) startAutoplay();
   }
 
-  slider.querySelectorAll('[data-slide-step]').forEach((button) => {
+  pauseArea.querySelectorAll('[data-slide-step]').forEach((button) => {
     button.addEventListener('click', () => showSlide(activeIndex + Number(button.dataset.slideStep)));
   });
   dotsContainer.addEventListener('click', (event) => {
     const dot = event.target.closest('[data-slide-to]');
     if (dot) showSlide(Number(dot.dataset.slideTo));
-  });
-  pauseArea.addEventListener('mouseenter', stopAutoplay);
-  pauseArea.addEventListener('mouseleave', startAutoplay);
-  pauseArea.addEventListener('focusin', stopAutoplay);
-  pauseArea.addEventListener('focusout', (event) => {
-    if (!pauseArea.contains(event.relatedTarget)) startAutoplay();
   });
   startAutoplay();
 }
@@ -352,6 +513,7 @@ function setup() {
 
   updateCartCount();
   setupHeroSlideshow();
+  setupProductDetail();
 
   if (document.querySelector('#home-products')) {
     showProductSkeletons('#home-products', 5);
@@ -380,17 +542,18 @@ function setup() {
     const addButton = event.target.closest('[data-add]');
     if (addButton) {
       const product = products.find((item) => item.id === addButton.dataset.add);
+      const variantColor = addButton.dataset.variantColor || '';
       const items = cart();
-      const existingItem = items.find((item) => item.id === product.id);
+      const existingItem = items.find((item) => item.id === product.id && (item.variantColor || '') === variantColor);
 
       if (existingItem) {
         existingItem.qty += 1;
       } else {
-        items.push({ id: product.id, qty: 1 });
+        items.push({ id: product.id, qty: 1, ...(variantColor ? { variantColor } : {}) });
       }
 
       saveCart(items);
-      toast(`${product.name} added to your bag (demo)`);
+      toast(`${product.name}${variantColor ? ` — ${variantColor}` : ''} added to your bag (demo)`);
     }
 
     if (event.target.closest('[data-checkout]')) {
@@ -495,16 +658,18 @@ function setupCart() {
 
   cartElement.innerHTML = items.map((item) => {
     const product = products.find((entry) => entry.id === item.id);
+    const itemName = `${product.name}${item.variantColor ? ` — ${item.variantColor}` : ''}`;
+    const encodedCartKey = encodeURIComponent(cartItemKey(item));
     return `
       <div class="cart-row">
         <div>
-          <strong>${product.name}</strong>
+          <strong>${itemName}</strong>
           <div class="product-category">Demo listing · ${product.category}</div>
         </div>
         <input class="cart-qty" type="number" min="1" max="10" value="${item.qty}"
-          data-qty="${item.id}" aria-label="Quantity for ${product.name}">
+          data-cart-key="${encodedCartKey}" aria-label="Quantity for ${itemName}">
         <strong>KSh ${(product.price * item.qty).toLocaleString('en-KE')}</strong>
-        <button class="cart-remove" data-remove="${item.id}" aria-label="Remove ${product.name}">×</button>
+        <button class="cart-remove" data-cart-remove="${encodedCartKey}" aria-label="Remove ${itemName}">×</button>
       </div>
     `;
   }).join('');
@@ -519,10 +684,11 @@ function setupCart() {
   document.querySelector('#cart-summary').hidden = false;
 
   cartElement.addEventListener('change', (event) => {
-    if (!event.target.matches('[data-qty]')) return;
+    if (!event.target.matches('[data-cart-key]')) return;
+    const selectedKey = decodeURIComponent(event.target.dataset.cartKey);
 
     const updatedItems = cart().map((item) => (
-      item.id === event.target.dataset.qty
+      cartItemKey(item) === selectedKey
         ? { ...item, qty: Math.max(1, Math.min(10, Number(event.target.value) || 1)) }
         : item
     ));
@@ -531,10 +697,11 @@ function setupCart() {
   });
 
   cartElement.addEventListener('click', (event) => {
-    const removeButton = event.target.closest('[data-remove]');
+    const removeButton = event.target.closest('[data-cart-remove]');
     if (!removeButton) return;
 
-    saveCart(cart().filter((item) => item.id !== removeButton.dataset.remove));
+    const selectedKey = decodeURIComponent(removeButton.dataset.cartRemove);
+    saveCart(cart().filter((item) => cartItemKey(item) !== selectedKey));
     setupCart();
   });
 }
